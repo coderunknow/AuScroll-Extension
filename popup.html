@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <title>AuScroll</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <div class="logo">▼</div>
+    <div>
+      <h1>AuScroll</h1>
+      <div id="status" class="status stopped">Đang dừng</div>
+    </div>
+  </header>
+
+  <div id="warn" class="warn hidden"></div>
+
+  <div class="row">
+    <button id="toggleBtn" class="toggle off">▶ Bật auto scroll</button>
+    <button id="pauseBtn" class="secondary" disabled>⏸ Tạm dừng</button>
+  </div>
+
+  <section>
+    <span class="label">Tốc độ <span id="speedVal" class="value">250 px/giây</span></span>
+    <input type="range" id="speed" min="10" max="1000" step="10" value="250">
+  </section>
+
+  <section>
+    <span class="label">Hướng cuộn</span>
+    <div class="seg">
+      <label><input type="radio" name="direction" value="down" checked> Xuống</label>
+      <label><input type="radio" name="direction" value="up"> Lên</label>
+    </div>
+  </section>
+
+  <section>
+    <span class="label">Khi tới cuối trang</span>
+    <div class="seg3">
+      <label title="Quay về đầu khung cuộn / đầu trang sau một khoảng dừng">
+        <input type="radio" name="end" value="loop" checked> Quay lại đầu
+      </label>
+      <label title="Dừng hoàn toàn">
+        <input type="radio" name="end" value="stop"> Dừng lại
+      </label>
+      <label title="Feed hết chỗ → tự chuyển sang cuộn cả trang; cả trang hết → dừng">
+        <input type="radio" name="end" value="continue"> Tiếp tục cuộn
+      </label>
+    </div>
+    <div class="urlHint">"Tiếp tục cuộn": feed hết chỗ → chuyển sang cuộn cả trang</div>
+  </section>
+
+  <section>
+    <span class="label">Chỉ cuộn trên các trang này <span class="hint">(trống = mọi trang)</span></span>
+    <div id="urlList" class="urlList"></div>
+    <div class="urlRow">
+      <input type="text" id="urlInput" placeholder="VD: youtube.com hoặc facebook.com/videos" spellcheck="false">
+      <button id="urlAddBtn" class="secondary small">Thêm</button>
+    </div>
+    <div class="urlHint">Domain = mọi trang của domain đó · thêm /path = chỉ đường dẫn đó</div>
+    <div id="urlMatch" class="urlMatch"></div>
+  </section>
+
+  <details class="advanced">
+    <summary>⚙ Nâng cao</summary>
+
+    <section>
+      <span class="label">Khi tôi cuộn tay / bấm chuột</span>
+      <div class="seg3">
+        <label><input type="radio" name="mpause" value="off"> Không</label>
+        <label><input type="radio" name="mpause" value="pause"> Tạm dừng</label>
+        <label><input type="radio" name="mpause" value="pause-resume" checked> Dừng rồi tự chạy lại</label>
+      </div>
+    </section>
+
+    <section>
+      <span class="label">Tự chạy lại sau <span id="resumeVal" class="value">5s</span></span>
+      <input type="range" id="resume" min="1" max="60" step="1" value="5">
+    </section>
+
+    <section>
+      <span class="label">Dừng ở cuối trước khi quay đầu <span id="loopWaitVal" class="value">0.9s</span></span>
+      <input type="range" id="loopWait" min="0.3" max="10" step="0.1" value="0.9">
+    </section>
+
+    <section>
+      <label class="check inline">
+        <input type="checkbox" id="humanize">
+        <span>Tốc độ ngẫu nhiên (giống người thật)</span>
+      </label>
+      <span class="label">Biến thiên ±<span id="jitterVal" class="value">25%</span></span>
+      <input type="range" id="jitter" min="5" max="60" step="5" value="25">
+    </section>
+
+    <section>
+      <span class="label">Khi bật, bắt đầu từ</span>
+      <div class="seg3">
+        <label><input type="radio" name="startpos" value="current" checked> Vị trí hiện tại</label>
+        <label><input type="radio" name="startpos" value="top"> Đầu trang</label>
+        <label><input type="radio" name="startpos" value="bottom"> Cuối trang</label>
+      </div>
+    </section>
+  </details>
+
+  <section class="checks">
+    <label class="check">
+      <input type="checkbox" id="autoContainer" checked>
+      <span>Tự nhận khung cuộn (feed Facebook, X, Reddit…)</span>
+    </label>
+  </section>
+
+  <footer>
+    <div>⌨ Alt+S — bật/tắt &nbsp;·&nbsp; Alt+P — tạm dừng</div>
+    <div class="muted">Đổi phím tắt: brave://extensions/shortcuts</div>
+  </footer>
+
+  <script src="shared.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
