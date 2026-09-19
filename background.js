@@ -23,7 +23,7 @@ const BADGES = {
   stopped: { text: '', color: '#1f2937' }
 };
 
-const COMMANDS = { start: 1, stop: 1, pause: 1, toggle: 1 };
+const COMMANDS = { start: 1, stop: 1, pause: 1, toggle: 1, skipwait: 1 };
 
 function setBadge(running, paused) {
   const b = !running ? BADGES.stopped : (paused ? BADGES.paused : BADGES.running);
@@ -90,11 +90,15 @@ async function activeTabId() {
   }
 }
 
-/* Phím tắt: Alt+S bật/tắt, Alt+P tạm dừng/tiếp tục */
+/* Phím tắt: Alt+S bật/tắt, Alt+P tạm dừng/tiếp tục, tăng/giảm tốc (tự gán phím) */
 chrome.commands.onCommand.addListener(async (command) => {
-  const name = command === 'pause-scroll' ? 'pause' : 'toggle';
   const tabId = await activeTabId();
   if (tabId == null) return;
+  if (command === 'speed-up' || command === 'speed-down') {
+    await relay(tabId, { type: 'scroller.speed', delta: command === 'speed-up' ? 50 : -50 });
+    return;
+  }
+  const name = command === 'pause-scroll' ? 'pause' : 'toggle';
   await relay(tabId, { type: 'scroller.command', command: name });
 });
 
@@ -116,6 +120,10 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         type: 'scroller.broadcast',
         running: !!msg.running,
         paused: !!msg.paused,
+        starting: !!msg.starting,
+        waiting: !!msg.waiting,
+        videoPaused: !!msg.videoPaused,
+        speed: typeof msg.speed === 'number' ? msg.speed : undefined,
         reason: msg.reason || ''
       });
       if (p && p.catch) p.catch(() => {});

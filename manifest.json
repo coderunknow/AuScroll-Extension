@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "AuScroll",
   "short_name": "AuScroll",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Cuộn trang tự động theo cấu hình: tốc độ, hướng, whitelist URL, tự nhận khung cuộn, phím tắt.",
   "icons": {
     "16": "icons/icon16.png",
@@ -39,6 +39,12 @@
     "pause-scroll": {
       "suggested_key": { "default": "Alt+P" },
       "description": "Tạm dừng / tiếp tục"
+    },
+    "speed-up": {
+      "description": "Tăng tốc độ +50 px/giây"
+    },
+    "speed-down": {
+      "description": "Giảm tốc độ −50 px/giây"
     }
   }
 }

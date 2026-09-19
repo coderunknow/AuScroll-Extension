@@ -3,25 +3,47 @@
 
 body {
   width: 320px;
+  max-height: 560px;
+  overflow-y: auto;
   font: 14px/1.45 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   background: #16181d;
   color: #e8eaf0;
   padding: 14px;
+  scrollbar-width: thin;
+  scrollbar-color: #2a2f3a transparent;
 }
 
 header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.headgrow { flex: 1; }
 .logo {
   width: 36px; height: 36px; border-radius: 9px;
   background: #fb542b; color: #fff;
   display: flex; align-items: center; justify-content: center;
   font-size: 18px; font-weight: 700;
+  flex-shrink: 0;
 }
 h1 { font-size: 15px; font-weight: 700; }
+.ver { font-size: 10px; color: #6b7280; font-weight: 600; vertical-align: middle; }
 
 .status { font-size: 12px; font-weight: 600; }
 .status.running { color: #4ade80; }
 .status.paused { color: #fbbf24; }
+.status.waiting { color: #60a5fa; }
 .status.stopped { color: #9aa1b2; }
+
+.substatus {
+  font-size: 11.5px; color: #93c5fd; background: #172033;
+  border: 1px solid #1e3a8a; border-radius: 8px;
+  padding: 6px 9px; margin-bottom: 8px;
+}
+.quick { display: flex; gap: 6px; margin-bottom: 10px; }
+.chip {
+  flex: 1; background: #1e3a8a; color: #dbeafe; border-radius: 8px;
+  padding: 7px 8px; font-size: 12px; font-weight: 600; cursor: pointer;
+}
+.chip:hover { background: #1d4ed8; }
+.chip.danger { background: #3a2020; color: #fca5a5; }
+.chip.danger:hover { background: #7f1d1d; }
 
 .warn {
   background: #33270f; border: 1px solid #7c5a1e; color: #ffd97a;
@@ -33,6 +55,7 @@ h1 { font-size: 15px; font-weight: 700; }
 button {
   font: inherit; cursor: pointer; border: 0; border-radius: 9px; padding: 10px 12px;
 }
+button:focus-visible, input:focus-visible + * { outline: 2px solid #fb542b; outline-offset: 1px; }
 .toggle { flex: 1; font-weight: 700; }
 .toggle.on { background: #dc2626; color: #fff; }
 .toggle.off { background: #16a34a; color: #fff; }
@@ -41,6 +64,14 @@ button {
 .secondary:disabled { opacity: .4; cursor: not-allowed; }
 
 section { margin-bottom: 12px; }
+.card {
+  background: #1c1f26; border: 1px solid #2a2f3a; border-radius: 9px;
+  padding: 9px 10px; margin-bottom: 12px;
+}
+.banner {
+  margin-top: 7px; font-size: 11.5px; color: #fdba74;
+  background: #2b1a0e; border: 1px solid #7c5a1e; border-radius: 7px; padding: 5px 8px;
+}
 .label {
   display: flex; justify-content: space-between; align-items: center;
   font-size: 12.5px; color: #aab1c2; margin-bottom: 6px; font-weight: 600;
@@ -55,11 +86,13 @@ input[type="range"] { width: 100%; accent-color: #fb542b; }
 }
 .seg input { accent-color: #fb542b; margin-right: 4px; }
 
-.checks label.check {
+.checks label.check, .card label.check {
   display: flex; gap: 8px; font-size: 12.5px; color: #c6cbd8;
-  margin-bottom: 8px; cursor: pointer;
+  margin-bottom: 8px; cursor: pointer; align-items: flex-start;
 }
-.checks input { accent-color: #fb542b; margin-top: 2px; flex-shrink: 0; }
+.checks.tight label.check { margin-bottom: 10px; }
+.checks input, .card input { accent-color: #fb542b; margin-top: 2px; flex-shrink: 0; }
+.card b { color: #fdba74; }
 
 .hint { color: #6b7280; font-weight: 400; font-size: 11px; }
 
@@ -98,6 +131,7 @@ input[type="range"] { width: 100%; accent-color: #fb542b; }
   cursor: pointer; font-size: 12.5px; font-weight: 700;
   color: #c6cbd8; padding: 7px 0; user-select: none;
 }
+.advanced[open] summary { border-bottom: 1px solid #2a2f3a; margin-bottom: 4px; }
 .advanced section { margin-top: 10px; }
 .seg3 { display: flex; gap: 6px; }
 .seg3 label {
@@ -107,8 +141,27 @@ input[type="range"] { width: 100%; accent-color: #fb542b; }
 .seg3 input { accent-color: #fb542b; margin-right: 3px; }
 .check.inline { margin-bottom: 8px; }
 
+.sub { margin-top: 8px; padding-left: 10px; border-left: 2px solid #2a2f3a; }
+
+.trigs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
+.tchip {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: #22262f; border-radius: 14px; padding: 4px 10px;
+  font-size: 11.5px; cursor: pointer; user-select: none;
+}
+.tchip input { accent-color: #fb542b; margin: 0; }
+
+.cfgrow { display: flex; gap: 6px; margin-bottom: 6px; }
+.cfgrow .small { flex: 1; }
+.danger { color: #f87171; }
+input[type="file"] { display: none; }
+
 footer {
   border-top: 1px solid #2a2f3a; padding-top: 10px;
   font-size: 12px; color: #aab1c2;
 }
 .muted { color: #6b7280; font-size: 11px; margin-top: 2px; }
+.statline {
+  margin-top: 7px; font-size: 11.5px; color: #86efac;
+  background: #14231a; border-radius: 7px; padding: 5px 8px;
+}

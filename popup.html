@@ -8,18 +8,31 @@
 <body>
   <header>
     <div class="logo">▼</div>
-    <div>
-      <h1>AuScroll</h1>
+    <div class="headgrow">
+      <h1>AuScroll <span class="ver">v1.1</span></h1>
       <div id="status" class="status stopped">Đang dừng</div>
     </div>
   </header>
 
+  <div id="substatus" class="substatus hidden"></div>
+  <div id="quick" class="quick hidden">
+    <button id="skipWaitBtn" class="chip">▶ Cuộn tiếp ngay</button>
+    <button id="quickStopBtn" class="chip danger">■ Dừng</button>
+  </div>
   <div id="warn" class="warn hidden"></div>
 
   <div class="row">
     <button id="toggleBtn" class="toggle off">▶ Bật auto scroll</button>
     <button id="pauseBtn" class="secondary" disabled>⏸ Tạm dừng</button>
   </div>
+
+  <section id="siteProfileSec" class="card">
+    <label class="check">
+      <input type="checkbox" id="siteSpecific">
+      <span>Dùng cấu hình riêng cho <b id="siteHost">trang này</b></span>
+    </label>
+    <div id="siteBanner" class="banner hidden">Đang chỉnh cấu hình riêng — chỉ áp dụng cho trang này</div>
+  </section>
 
   <section>
     <span class="label">Tốc độ <span id="speedVal" class="value">250 px/giây</span></span>
@@ -43,11 +56,18 @@
       <label title="Dừng hoàn toàn">
         <input type="radio" name="end" value="stop"> Dừng lại
       </label>
-      <label title="Feed hết chỗ → tự chuyển sang cuộn cả trang; cả trang hết → dừng">
+      <label title="Feed hết chỗ → cuộn cả trang; hết nội dung → chờ nội dung mới (AI stream) rồi cuộn tiếp">
         <input type="radio" name="end" value="continue"> Tiếp tục cuộn
       </label>
     </div>
-    <div class="urlHint">"Tiếp tục cuộn": feed hết chỗ → chuyển sang cuộn cả trang</div>
+    <div id="continueOpts" class="sub">
+      <span class="label">Chờ nội dung mới tối đa <span id="cwaitVal" class="value">15s</span></span>
+      <input type="range" id="cwait" min="5" max="120" step="5" value="15">
+      <label class="check inline">
+        <input type="checkbox" id="cwaitInf">
+        <span>Chờ vô hạn tới khi có nội dung mới (trang AI đang trả lời)</span>
+      </label>
+    </div>
   </section>
 
   <section>
@@ -61,26 +81,62 @@
     <div id="urlMatch" class="urlMatch"></div>
   </section>
 
-  <details class="advanced">
+  <details class="advanced" id="advBox">
     <summary>⚙ Nâng cao</summary>
 
     <section>
-      <span class="label">Khi tôi cuộn tay / bấm chuột</span>
+      <span class="label">Khi tôi cuộn tay / gõ phím cuộn</span>
       <div class="seg3">
         <label><input type="radio" name="mpause" value="off"> Không</label>
         <label><input type="radio" name="mpause" value="pause"> Tạm dừng</label>
         <label><input type="radio" name="mpause" value="pause-resume" checked> Dừng rồi tự chạy lại</label>
       </div>
+      <div id="trigWrap" class="sub">
+        <span class="label">Những thao tác khiến nó tạm dừng</span>
+        <div class="trigs">
+          <label class="tchip"><input type="checkbox" id="trigWheel" checked> Lăn chuột</label>
+          <label class="tchip"><input type="checkbox" id="trigTouch" checked> Cảm ứng</label>
+          <label class="tchip"><input type="checkbox" id="trigClick"> Bấm chuột</label>
+          <label class="tchip"><input type="checkbox" id="trigKeys" checked> Phím cuộn</label>
+        </div>
+        <div class="urlHint">Ô nhập liệu (đang gõ) không bao giờ gây tạm dừng. Mặc định bấm chuột không dừng.</div>
+      </div>
+      <div id="resumeWrap" class="sub">
+        <span class="label">Tự chạy lại sau <span id="resumeVal" class="value">5s</span></span>
+        <input type="range" id="resume" min="1" max="60" step="1" value="5">
+      </div>
     </section>
 
-    <section>
-      <span class="label">Tự chạy lại sau <span id="resumeVal" class="value">5s</span></span>
-      <input type="range" id="resume" min="1" max="60" step="1" value="5">
-    </section>
-
-    <section>
+    <section id="loopWaitSec">
       <span class="label">Dừng ở cuối trước khi quay đầu <span id="loopWaitVal" class="value">0.9s</span></span>
       <input type="range" id="loopWait" min="0.3" max="10" step="0.1" value="0.9">
+      <div id="maxLoopsWrap" class="sub">
+        <span class="label">Số vòng lặp tối đa <span id="maxLoopsVal" class="value">Vô hạn</span></span>
+        <input type="range" id="maxLoops" min="0" max="20" step="1" value="0">
+      </div>
+    </section>
+
+    <section>
+      <label class="check inline">
+        <input type="checkbox" id="stepMode">
+        <span>Cuộn từng bước (đọc từng đoạn, nghỉ giữa các bước)</span>
+      </label>
+      <div id="stepOpts" class="sub">
+        <span class="label">Mỗi bước <span id="stepPxVal" class="value">300 px</span></span>
+        <input type="range" id="stepPx" min="50" max="1000" step="50" value="300">
+        <span class="label">Nghỉ giữa các bước <span id="stepIntVal" class="value">2s</span></span>
+        <input type="range" id="stepInt" min="0.5" max="10" step="0.5" value="2">
+        <span class="label">Kiểu nhảy</span>
+        <div class="seg">
+          <label><input type="radio" name="stepease" value="smooth" checked> Mượt</label>
+          <label><input type="radio" name="stepease" value="linear"> Tức thì</label>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <span class="label">Tự dừng sau <span id="durVal" class="value">Tắt</span></span>
+      <input type="range" id="dur" min="0" max="120" step="5" value="0">
     </section>
 
     <section>
@@ -88,8 +144,18 @@
         <input type="checkbox" id="humanize">
         <span>Tốc độ ngẫu nhiên (giống người thật)</span>
       </label>
-      <span class="label">Biến thiên ±<span id="jitterVal" class="value">25%</span></span>
-      <input type="range" id="jitter" min="5" max="60" step="5" value="25">
+      <div id="jitterWrap" class="sub">
+        <span class="label">Biến thiên ±<span id="jitterVal" class="value">25%</span></span>
+        <input type="range" id="jitter" min="5" max="60" step="5" value="25">
+        <span class="label">Trễ ngẫu nhiên khi bật <span id="sdVal" class="value">Tắt</span></span>
+        <input type="range" id="sd" min="0" max="5000" step="250" value="0">
+      </div>
+    </section>
+
+    <section class="checks tight">
+      <label class="check"><input type="checkbox" id="pauseOnVideo"><span>Tự tạm dừng khi có video đang phát (hết video tự chạy lại)</span></label>
+      <label class="check"><input type="checkbox" id="hudShow" checked><span>Hiện chỉ báo trạng thái nhỏ ở góc trang (bấm vào = tạm dừng/tiếp tục)</span></label>
+      <label class="check"><input type="checkbox" id="statsEnabled" checked><span>Ghi lại thống kê đã cuộn (chỉ lưu trên máy)</span></label>
     </section>
 
     <section>
@@ -100,6 +166,11 @@
         <label><input type="radio" name="startpos" value="bottom"> Cuối trang</label>
       </div>
     </section>
+
+    <section class="checks">
+      <label class="check inline"><input type="checkbox" id="autoStart"><span>Tự bật khi mở trang trong danh sách URL</span></label>
+      <label class="check inline"><input type="checkbox" id="resumeReload"><span>Tiếp tục cuộn sau khi tải lại trang (F5)</span></label>
+    </section>
   </details>
 
   <section class="checks">
@@ -109,9 +180,21 @@
     </label>
   </section>
 
+  <section>
+    <span class="label">Cấu hình</span>
+    <div class="cfgrow">
+      <button id="exportBtn" class="secondary small">⬇ Xuất file</button>
+      <button id="importBtn" class="secondary small">⬆ Nhập file</button>
+      <button id="resetBtn" class="secondary small danger">↺ Đặt lại</button>
+    </div>
+    <input type="file" id="importFile" accept="application/json,.json" class="hidden">
+    <div id="cfgMsg" class="urlHint"></div>
+  </section>
+
   <footer>
     <div>⌨ Alt+S — bật/tắt &nbsp;·&nbsp; Alt+P — tạm dừng</div>
-    <div class="muted">Đổi phím tắt: brave://extensions/shortcuts</div>
+    <div class="muted">Đổi phím tắt / gán phím tăng-giảm tốc: brave://extensions/shortcuts</div>
+    <div id="statsLine" class="statline hidden"></div>
   </footer>
 
   <script src="shared.js"></script>
